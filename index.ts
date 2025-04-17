@@ -15,9 +15,9 @@ function findBySocket(ws: WebSocket) {
   return sockets.find(s => s.ws === ws);
 }
 
-const wss = new WebSocketServer({port: 8080});
+const wss = new WebSocketServer({port: 8081});
 wss.on('listening', () => {
-  console.log('Server listening on port 8080');
+  console.log('Server listening on port 8081');
 });
 wss.on('error', err => {
   console.error(err);
