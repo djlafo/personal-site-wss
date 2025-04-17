@@ -1,6 +1,5 @@
 import WebSocket, { WebSocketServer } from 'ws';
-import dotenv from 'dotenv';
-dotenv.config();
+import 'dotenv/config';
 
 import { handleMessage } from "./src/MessageHandler.js";
 
