@@ -43,12 +43,14 @@ wss.on('connection', ws => {
             sock.authorized = true;
             if (r.server) {
               sock.server = true;
+              console.log(`Accepted server`);
             } else if (r.username) {
-              console.log(`user: ${r.username}`);
+              console.log(`Accepted user: ${r.username}`);
               sock.username = r.username;
             }
             ws.send('authorized');
           } else {
+            console.log('Unauthorized request, closing');
             ws.close();
           }
         }

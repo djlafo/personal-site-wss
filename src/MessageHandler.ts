@@ -49,7 +49,7 @@ export async function handleMessage(sock: WSClient, s: WebSocket.RawData): Promi
             case 'text':
                 if(!sock.server) return {authorized: false};
                 const res = await handleTextEvent(ev as TextEvent);
-                if(res) sock.ws.send(JSON.stringify({data: res}), () => sock.ws.close());
+                if(res) await sock.ws.send(JSON.stringify({data: res}), () => sock.ws.close());
                 break;
             default: 
                 console.log(`Received unknown event: ${ev.event}`);
@@ -57,5 +57,4 @@ export async function handleMessage(sock: WSClient, s: WebSocket.RawData): Promi
         }
         return {};
     }
-    return {};
 }

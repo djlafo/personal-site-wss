@@ -33,6 +33,9 @@ export async function handleTextEvent(ev: TextEvent): Promise<TextEventData[] | 
         case 'add':
             await addEvent(ev.data);
             break;
+        case 'remove':
+            deleteEvent(ev.data);
+            break;
         case 'list':
             return listEvents(ev.data.recipient);
     }
@@ -46,13 +49,25 @@ async function addEvent(ev: TextEventData) {
         console.log(`[TextEvent] Time received is over max allowed time (${ev.time})`);
         return;
     }
-    const adjusted = Date.now() + ev.time;
-    console.log(`[TextEvent] Recipient (${ev.recipient}) scheduled for ${new Date(adjusted).toLocaleTimeString('en-US', {timeZone: 'America/Chicago'})} 
-        message: ${ev.text}`);
+    const adjusted = Date.now() + (ev.time*1000);
+    const d = new Date(adjusted);
+    console.log(`[TextEvent] Recipient (${ev.recipient}) scheduled for ` +
+        new Date(adjusted).toLocaleDateString('en-US', {timeZone: 'America/Chicago'}) +
+        ` ${d.toLocaleTimeString('en-US', {timeZone: 'America/Chicago'})}, ` +
+        `message: ${ev.text}`);
 
     events.push({...ev, time: adjusted});
 }
 
+function deleteEvent(ev: TextEventData) {
+    const d = new Date(ev.time);
+    console.log(`[TextEvent] Received remove event for ${ev.recipient} ` +
+        `for ${d.toLocaleDateString('en-US', {timeZone: 'America/Chicago'})} ` +
+        d.toLocaleTimeString('en-US', {timeZone: 'America/Chicago'}));
+    events = events.filter(e => e.recipient !== ev.recipient || e.text !== ev.text || e.time !== ev.time);
+}
+
 function listEvents(phoneNumber: string): TextEventData[] {
+    console.log(`[TextEvent] Received list event`);
     return events.filter(e => e.recipient === phoneNumber);
 }
