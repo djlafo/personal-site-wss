@@ -16,16 +16,24 @@ const MAX_TIME = 1000 * 60 * 60 * 24 * 7;
 
 setInterval(() => {
     const completed: number[] = [];
+    const promises: Promise<void>[] = [];
     events.forEach((e,i) => {
         if(e.time < Date.now()) {
-            sendTo('/api/sms/scheduled', e).then(r => {
+            promises.push(sendTo('/api/sms/scheduled', e).then(r => {
                 completed.push(i);
+                const d = new Date(e.time);
+                console.log(`[TextEvent] Delivered text (${e.recipient}) for ` +
+                    d.toLocaleDateString('en-US', {timeZone: 'America/Chicago'}) +
+                    ` ${d.toLocaleTimeString('en-US', {timeZone: 'America/Chicago'})}, ` +
+                    `message: ${e.text}`);
             }).catch(e => {
                 console.log(`[TextEvent] Error sending text: ${e}`);
-            });
+            }));
         }
     });
-    events = events.filter((_, i) => !completed.includes(i));
+    Promise.all(promises).then(() => {
+        events = events.filter((_, i) => !completed.includes(i));
+    })
 }, 15000);
 
 export async function handleTextEvent(ev: TextEvent): Promise<TextEventData[] | undefined> {
@@ -52,7 +60,7 @@ async function addEvent(ev: TextEventData) {
     const adjusted = Date.now() + (ev.time*1000);
     const d = new Date(adjusted);
     console.log(`[TextEvent] Recipient (${ev.recipient}) scheduled for ` +
-        new Date(adjusted).toLocaleDateString('en-US', {timeZone: 'America/Chicago'}) +
+        d.toLocaleDateString('en-US', {timeZone: 'America/Chicago'}) +
         ` ${d.toLocaleTimeString('en-US', {timeZone: 'America/Chicago'})}, ` +
         `message: ${ev.text}`);
 
