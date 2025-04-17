@@ -14,10 +14,11 @@ let sockets: WSClient[] = [];
 function findBySocket(ws: WebSocket) {
   return sockets.find(s => s.ws === ws);
 }
+const PORT = Number(process.env.PORT) || 8080;
 
-const wss = new WebSocketServer({port: 8081});
+const wss = new WebSocketServer({port: PORT});
 wss.on('listening', () => {
-  console.log('Server listening on port 8081');
+  console.log(`Server listening on port ${PORT}`);
 });
 wss.on('error', err => {
   console.error(err);
