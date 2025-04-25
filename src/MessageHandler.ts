@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import jwt from 'jsonwebtoken';
 import { WSClient } from "../index.js";
-import { handleTextEvent, TextEvent } from "./TextHandler.js";
+import { pollTextAlerts } from "./TextHandler.js";
 
 export interface SockChange {
     server?: boolean;
@@ -28,6 +28,8 @@ export interface JWTObjType {
     data: User;
 }
 
+pollTextAlerts();
+
 export async function handleMessage(sock: WSClient, s: WebSocket.RawData): Promise<SockChange> {
     if(!sock.authorized) {
         const token: WebSocketOptions = JSON.parse(s.toString());
@@ -46,11 +48,6 @@ export async function handleMessage(sock: WSClient, s: WebSocket.RawData): Promi
     } else {
         const ev: WebSocketEvent = JSON.parse(s.toString());
         switch(ev.event) {
-            case 'text':
-                if(!sock.server) return {authorized: false};
-                const res = await handleTextEvent(ev as TextEvent);
-                if(res) await sock.ws.send(JSON.stringify({data: res}), () => sock.ws.close());
-                break;
             default: 
                 console.log(`Received unknown event: ${ev.event}`);
                 break;
